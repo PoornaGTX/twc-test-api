@@ -1,6 +1,7 @@
 import Contact from "../models/Contact.js";
 import httpStatusResponser from "http-status-responser";
 import { BadRequestError } from "../errors/index.js";
+import checkPermissions from "../utils/checkPermission.js";
 
 const createContact = async (req, res) => {
   const { fullName, email, phoneNumber, gender } = req.body;
@@ -9,17 +10,20 @@ const createContact = async (req, res) => {
     throw new BadRequestError("Please provide all values");
   }
 
+  req.body.createdBy = req.user.userId;
+
   const contact = await Contact.create(req.body);
   res.status(httpStatusResponser.CREATED).json({ contact });
 };
 
 const updateContact = async (req, res) => {
   const { id: contactId } = req.params;
-  const { fullName, email, phoneNumber } = req.body;
+  const { fullName, phoneNumber } = req.body;
 
-  if (!fullName || !email || !phoneNumber) {
+  if (!fullName || !phoneNumber) {
     throw new BadRequestError("Please provide all values");
   }
+
   const contact = await Contact.findOne({ _id: contactId });
 
   if (!contact) {
@@ -47,13 +51,17 @@ const deleteContact = async (req, res) => {
     throw new NotFoundError(`No contact with id :${contactId}`);
   }
 
+  checkPermissions(req.user, contact.createdBy);
+
   await contact.remove();
 
   res.status(httpStatusResponser.OK).json({ msg: "Success! contact removed" });
 };
 
 const getAllContacts = async (req, res) => {
-  const allContacts = await Contact.find({});
+  const allContacts = await Contact.find({
+    createdBy: req.user.userId,
+  });
   res.status(httpStatusResponser.OK).json({ allContacts });
 };
 

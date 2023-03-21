@@ -16,7 +16,6 @@ const ContactSchema = new mongoose.Schema(
         validator: validator.isEmail,
         message: "Please provide valid email",
       },
-      unique: true,
     },
     phoneNumber: {
       type: Number,
@@ -27,6 +26,11 @@ const ContactSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide gender"],
       enum: ["male", "female"],
+    },
+    createdBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: [true, "Please provide user"],
     },
   },
   { timestamps: true }
