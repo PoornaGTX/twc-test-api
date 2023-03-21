@@ -10,6 +10,10 @@ const createContact = async (req, res) => {
     throw new BadRequestError("Please provide all values");
   }
 
+  if (phoneNumber.toString().length !== 10 || !/^\d+$/.test(phoneNumber)) {
+    throw new BadRequestError("Invalid phone number");
+  }
+
   req.body.createdBy = req.user.userId;
 
   const contact = await Contact.create(req.body);
@@ -19,6 +23,10 @@ const createContact = async (req, res) => {
 const updateContact = async (req, res) => {
   const { id: contactId } = req.params;
   const { fullName, phoneNumber } = req.body;
+
+  if (phoneNumber.toString().length > 10) {
+    throw new BadRequestError("Invalid phone number");
+  }
 
   if (!fullName || !phoneNumber) {
     throw new BadRequestError("Please provide all values");
