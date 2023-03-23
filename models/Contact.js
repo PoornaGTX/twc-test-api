@@ -18,7 +18,7 @@ const ContactSchema = new mongoose.Schema(
       },
     },
     phoneNumber: {
-      type: Number,
+      type: String,
       required: [true, "Please provide phone number"],
       maxlength: 10,
     },
